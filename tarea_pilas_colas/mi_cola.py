@@ -96,18 +96,3 @@ class MiCola:
     # ESTÁ VACÍA
     def esta_vacia(self):
         return self.cantidad == 0
-
-    # FILTRAR MAYORES DE EDAD
-    def filtrar_mayores_de_edad(self):
-        resultado = MiCola(self.capacidad)
-        for i in range(self.cantidad):
-            if self.datos[i].es_mayor_de_edad():
-                resultado.encolar(self.datos[i])
-        return resultado
-
-    # NOMBRES EN MAYÚSCULAS
-    def nombres_en_mayusculas(self):
-        resultado = [None] * self.cantidad
-        for i in range(self.cantidad):
-            resultado[i] = self.datos[i].nombre.upper()
-        return resultado

@@ -71,8 +71,6 @@ def mostrar_opciones(titulo, entrar, salir, ver):
     print("7. Eliminar por número")
     print("8. Copiar")
     print("9. Longitud / ¿vacía?")
-    print("10. Filtrar mayores de edad")
-    print("11. Nombres en mayúsculas")
     print("C. Cargar datos de prueba")
     print("0. Volver")
 
@@ -130,13 +128,6 @@ def menu_pila():
         elif op == "9":
             print("Longitud:", pila.longitud())
             print("Está vacía:", pila.esta_vacia())
-        elif op == "10":
-            mayores = pila.filtrar_mayores_de_edad()
-            print("Mayores de edad")
-            mayores.listar()
-        elif op == "11":
-            nombres = pila.nombres_en_mayusculas()
-            print("Nombres en mayúsculas:", nombres)
         elif op == "C":
             for pasajero in datos_prueba():
                 pila.apilar(pasajero)
@@ -200,13 +191,6 @@ def menu_cola():
         elif op == "9":
             print("Longitud:", cola.longitud())
             print("Está vacía:", cola.esta_vacia())
-        elif op == "10":
-            mayores = cola.filtrar_mayores_de_edad()
-            print("Mayores de edad")
-            mayores.listar()
-        elif op == "11":
-            nombres = cola.nombres_en_mayusculas()
-            print("Nombres en mayúsculas:", nombres)
         elif op == "C":
             for pasajero in datos_prueba():
                 cola.encolar(pasajero)
