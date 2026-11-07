@@ -96,3 +96,23 @@ class MiPila:
     # ESTÁ VACÍA
     def esta_vacia(self):
         return self.cantidad == 0
+
+    # FILTRAR MAYORES DE EDAD
+    def filtrar_mayores_de_edad(self):
+        aux = MiPila(self.capacidad)
+        resultado = MiPila(self.capacidad)
+        for i in range(self.cantidad - 1, -1, -1):
+            if self.datos[i].es_mayor_de_edad():
+                aux.apilar(self.datos[i])
+        while not aux.esta_vacia():
+            resultado.apilar(aux.desapilar())
+        return resultado
+
+    # NOMBRES EN MAYÚSCULAS
+    def nombres_en_mayusculas(self):
+        resultado = [None] * self.cantidad
+        posicion = 0
+        for i in range(self.cantidad - 1, -1, -1):
+            resultado[posicion] = self.datos[i].nombre.upper()
+            posicion = posicion + 1
+        return resultado
