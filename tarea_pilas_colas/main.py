@@ -1,3 +1,5 @@
+from datetime import date
+
 from pasajero import Pasajero
 from mi_pila import MiPila
 from mi_cola import MiCola
@@ -7,13 +9,13 @@ cola = MiCola(10)
 
 
 # Funciones de apoyo.
-def leer_entero(mensaje):
+def leer_entero(mensaje, minimo=0):
     while True:
         try:
             numero = int(input(mensaje))
-            if numero >= 0:
+            if numero >= minimo:
                 return numero
-            print("El número no puede ser negativo.")
+            print(f"Ingrese un número desde {minimo}.")
         except ValueError:
             print("Debe ser un número entero.")
 
@@ -27,19 +29,34 @@ def leer_texto(mensaje):
 
 
 def leer_pasajero():
+    numero = leer_entero("Número de pasajero: ", 1)
     nombre = leer_texto("Nombre: ")
     cedula = leer_texto("Cédula: ")
     edad = leer_entero("Edad: ")
-    return Pasajero(nombre, cedula, edad)
+    fecha = leer_fecha()
+    destino = leer_texto("Destino: ")
+    asiento = leer_texto("Asiento: ").upper()
+    return Pasajero(numero, nombre, cedula, edad, fecha, destino, asiento)
+
+
+def leer_fecha():
+    while True:
+        fecha = input("Fecha de vuelo (AAAA-MM-DD): ").strip()
+        try:
+            if date.fromisoformat(fecha).isoformat() == fecha:
+                return fecha
+        except ValueError:
+            pass
+        print("Ingrese una fecha válida con el formato AAAA-MM-DD.")
 
 
 def datos_prueba():
     return [
-        Pasajero("Diana", "0923456789", 22),
-        Pasajero("Ana", "0912345678", 28),
-        Pasajero("Luis", "0987654321", 35),
-        Pasajero("Beto", "0934567890", 16),
-        Pasajero("Elena", "0901234567", 41),
+        Pasajero(1005, "Diana", "0923456789", 22, "2026-11-15", "Quito", "12A"),
+        Pasajero(1002, "Ana", "0912345678", 28, "2026-11-15", "Lima", "03C"),
+        Pasajero(1009, "Luis", "0987654321", 35, "2026-11-20", "Bogotá", "18F"),
+        Pasajero(1004, "Beto", "0934567890", 16, "2026-11-20", "Quito", "07B"),
+        Pasajero(1001, "Elena", "0901234567", 41, "2026-11-22", "Lima", "01A"),
     ]
 
 
@@ -49,9 +66,9 @@ def mostrar_opciones(titulo, entrar, salir, ver):
     print("2. Listar")
     print(f"3. {salir}")
     print(f"4. {ver}")
-    print("5. Buscar por cédula")
-    print("6. Modificar")
-    print("7. Eliminar por cédula")
+    print("5. Buscar por número")
+    print("6. Modificar destino y asiento")
+    print("7. Eliminar por número")
     print("8. Copiar")
     print("9. Longitud / ¿vacía?")
     print("10. Filtrar mayores de edad")
@@ -78,6 +95,11 @@ def menu_pila():
                 print("Pila vacía")
             else:
                 print("Salió:", pasajero)
+                nuevo = pila.ver_tope()
+                if nuevo is None:
+                    print("Pila vacía")
+                else:
+                    print("Nuevo tope:", nuevo)
         elif op == "4":
             pasajero = pila.ver_tope()
             if pasajero is None:
@@ -85,21 +107,21 @@ def menu_pila():
             else:
                 print("Tope:", pasajero)
         elif op == "5":
-            cedula = leer_texto("Cédula: ")
-            pos = pila.buscar(cedula)
+            numero = leer_entero("Número de pasajero: ", 1)
+            pos = pila.buscar(numero)
             if pos == -1:
                 print("No existe")
             else:
                 print(f"Encontrado en [{pos}]: {pila.datos[pos]}")
         elif op == "6":
-            cedula = leer_texto("Cédula: ")
-            nombre = leer_texto("Nuevo nombre: ")
-            edad = leer_entero("Nueva edad: ")
-            if pila.modificar(cedula, nombre, edad):
+            numero = leer_entero("Número de pasajero: ", 1)
+            destino = leer_texto("Nuevo destino: ")
+            asiento = leer_texto("Nuevo asiento: ").upper()
+            if pila.modificar(numero, destino, asiento):
                 print("Pasajero modificado")
         elif op == "7":
-            cedula = leer_texto("Cédula: ")
-            if pila.eliminar_por_cedula(cedula):
+            numero = leer_entero("Número de pasajero: ", 1)
+            if pila.eliminar_por_numero(numero):
                 print("Pasajero eliminado")
         elif op == "8":
             copia = pila.copiar()
@@ -143,6 +165,11 @@ def menu_cola():
                 print("Cola vacía")
             else:
                 print("Salió:", pasajero)
+                nuevo = cola.ver_frente()
+                if nuevo is None:
+                    print("Cola vacía")
+                else:
+                    print("Nuevo frente:", nuevo)
         elif op == "4":
             pasajero = cola.ver_frente()
             if pasajero is None:
@@ -150,21 +177,21 @@ def menu_cola():
             else:
                 print("Frente:", pasajero)
         elif op == "5":
-            cedula = leer_texto("Cédula: ")
-            pos = cola.buscar(cedula)
+            numero = leer_entero("Número de pasajero: ", 1)
+            pos = cola.buscar(numero)
             if pos == -1:
                 print("No existe")
             else:
                 print(f"Encontrado en [{pos}]: {cola.datos[pos]}")
         elif op == "6":
-            cedula = leer_texto("Cédula: ")
-            nombre = leer_texto("Nuevo nombre: ")
-            edad = leer_entero("Nueva edad: ")
-            if cola.modificar(cedula, nombre, edad):
+            numero = leer_entero("Número de pasajero: ", 1)
+            destino = leer_texto("Nuevo destino: ")
+            asiento = leer_texto("Nuevo asiento: ").upper()
+            if cola.modificar(numero, destino, asiento):
                 print("Pasajero modificado")
         elif op == "7":
-            cedula = leer_texto("Cédula: ")
-            if cola.eliminar_por_cedula(cedula):
+            numero = leer_entero("Número de pasajero: ", 1)
+            if cola.eliminar_por_numero(numero):
                 print("Pasajero eliminado")
         elif op == "8":
             copia = cola.copiar()

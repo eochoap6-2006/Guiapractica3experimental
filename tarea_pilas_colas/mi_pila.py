@@ -11,8 +11,8 @@ class MiPila:
         if self.cantidad == self.capacidad:
             print("La pila está llena")
             return False
-        if self.buscar(pasajero.cedula) != -1:
-            print(pasajero.cedula, "ya existe")
+        if self.buscar(pasajero.numero) != -1:
+            print(pasajero.numero, "ya existe")
             return False
         self.datos[self.cantidad] = pasajero
         self.cantidad = self.cantidad + 1
@@ -47,39 +47,39 @@ class MiPila:
         return self.datos[self.cantidad - 1]
 
     # BUSCAR
-    def buscar(self, cedula):
+    def buscar(self, numero):
         for i in range(self.cantidad - 1, -1, -1):
-            if self.datos[i].cedula == cedula:
+            if self.datos[i].numero == numero:
                 return i
         return -1
 
     # MODIFICAR
-    def modificar(self, cedula, nuevo_nombre, nueva_edad):
-        pos = self.buscar(cedula)
+    def modificar(self, numero, nuevo_destino, nuevo_asiento):
+        pos = self.buscar(numero)
         if pos == -1:
-            print(cedula, "no existe")
+            print(numero, "no existe")
             return False
-        if not nuevo_nombre.strip() or nueva_edad < 0:
-            print("Nombre o edad no válidos")
+        if not nuevo_destino.strip() or not nuevo_asiento.strip():
+            print("Destino o asiento no válidos")
             return False
-        self.datos[pos].nombre = nuevo_nombre
-        self.datos[pos].edad = nueva_edad
+        self.datos[pos].destino = nuevo_destino.strip()
+        self.datos[pos].asiento = nuevo_asiento.strip().upper()
         return True
 
-    # ELIMINAR POR CÉDULA
-    def eliminar_por_cedula(self, cedula):
+    # ELIMINAR POR NÚMERO
+    def eliminar_por_numero(self, numero):
         aux = MiPila(self.capacidad)
         eliminado = False
         while not self.esta_vacia():
             pasajero = self.desapilar()
-            if pasajero.cedula == cedula:
+            if pasajero.numero == numero:
                 eliminado = True
                 break
             aux.apilar(pasajero)
         while not aux.esta_vacia():
             self.apilar(aux.desapilar())
         if not eliminado:
-            print(cedula, "no existe")
+            print(numero, "no existe")
         return eliminado
 
     # COPIAR
