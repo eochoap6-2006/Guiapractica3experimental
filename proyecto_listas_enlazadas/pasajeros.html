@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">                       <!-- tildes y ñ -->
+<title>Pasajeros - Lista enlazada</title>   <!-- texto de la pestaña -->
+<style>
+  /* ---------- Página ---------- */
+  body   { font-family: sans-serif; background: #f5f7fb; padding: 16px; }
+  h1     { color: #1A73E8; }
+
+  /* ---------- Formulario ---------- */
+  input  { padding: 6px; border: 1px solid #ccc; border-radius: 6px; }
+  button { padding: 6px 12px; border: none; border-radius: 6px;
+           background: #7B3FE4; color: white; cursor: pointer; }
+  button:hover { background: #5A2AAB; }        /* más oscuro al pasar el mouse */
+
+  /* ---------- El tren de nodos (flexbox) ---------- */
+  .tren  { display: flex;                      /* nodos en fila */
+           align-items: center;                /* centrados en vertical */
+           flex-wrap: wrap;                    /* bajan de línea si no caben */
+           gap: 6px; margin-top: 16px; }
+  .nodo  { background: #F3E8FD; border: 2px solid #7B3FE4;
+           border-radius: 8px; padding: 6px 12px; text-align: center; }
+  .nodo small { display: block; color: #666; } /* el asiento debajo del nombre */
+  .cabeza { border-color: #1A73E8; background: #E8F0FE; }  /* el head en azul */
+  .flecha { color: #7B3FE4; font-size: 22px; }
+  #msg    { margin-top: 10px; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>✈️ Pasajeros del vuelo</h1>
+
+  <!-- Datos del pasajero -->
+  <input id="nombre" placeholder="Nombre">
+  <input id="asiento" placeholder="Asiento" size="5">
+
+  <!-- Un botón por cada método de la lista -->
+  <button id="btnFinal">Agregar al final</button>
+  <button id="btnInicio">Agregar al inicio</button>
+  <button id="btnBuscar">Buscar</button>
+  <button id="btnEliminar">Eliminar</button>
+
+  <div id="msg"></div>                         <!-- mensajes al usuario -->
+  <div id="tren" class="tren"></div>           <!-- aquí JS dibuja los nodos -->
+
+<script>
+// =====================================================
+// 1. ESTRUCTURA DE DATOS (no sabe nada de HTML)
+// =====================================================
+
+// Un vagón: guarda un pasajero y la flecha al siguiente
+class Nodo {
+  constructor(data) {
+    this.data = data;     // { nombre, asiento }
+    this.next = null;     // al nacer no apunta a nadie
+  }
+}
+
+class ListaEnlazada {
+  constructor() {
+    this.head = null;     // primer nodo (null = lista vacía)
+    this.cantidad = 0;    // contador de nodos
+  }
+
+  // Agrega al inicio: el nuevo se vuelve la cabeza
+  insertarInicio(p) {
+    const nuevo = new Nodo(p);
+    nuevo.next = this.head;   // 1° el nuevo apunta a la cabeza actual
+    this.head = nuevo;        // 2° el nuevo pasa a ser la cabeza
+    this.cantidad++;
+  }
+
+  // Agrega al final: camina hasta el último nodo
+  insertarFinal(p) {
+    const nuevo = new Nodo(p);
+    if (this.head === null) {           // lista vacía: el nuevo es la cabeza
+      this.head = nuevo;
+    } else {
+      let actual = this.head;           // empiezo en la cabeza
+      while (actual.next !== null) {    // mientras NO sea el último...
+        actual = actual.next;           // ...avanzo
+      }
+      actual.next = nuevo;              // engancho al final
+    }
+    this.cantidad++;
+  }
+
+  // Busca por nombre: devuelve el pasajero o null
+  buscar(nombre) {
+    let actual = this.head;
+    while (actual !== null) {                    // recorro todos los nodos
+      if (actual.data.nombre === nombre) {
+        return actual.data;                      // encontrado
+      }
+      actual = actual.next;
+    }
+    return null;                                 // llegué al final: no está
+  }
+
+  // Elimina por nombre: devuelve true si lo borró
+  eliminar(nombre) {
+    if (this.head === null) return false;        // lista vacía
+
+    if (this.head.data.nombre === nombre) {      // caso especial: es la cabeza
+      this.head = this.head.next;                // la cabeza pasa al segundo
+      this.cantidad--;
+      return true;
+    }
+
+    let anterior = this.head;                    // me paro ANTES del que busco
+    while (anterior.next !== null &&
+           anterior.next.data.nombre !== nombre) {
+      anterior = anterior.next;
+    }
+    if (anterior.next === null) return false;    // recorrí todo y no estaba
+
+    anterior.next = anterior.next.next;          // salto el nodo: queda fuera
+    this.cantidad--;
+    return true;
+  }
+}
+
+// =====================================================
+// 2. INTERFAZ (conecta la lista con el HTML)
+// =====================================================
+const lista = new ListaEnlazada();                 // la lista del vuelo
+const $ = (id) => document.getElementById(id);    // atajo para buscar por id
+
+// Lee los inputs y devuelve un pasajero (o null si falta el nombre)
+function leerPasajero() {
+  const nombre = $("nombre").value.trim();                 // quita espacios
+  const asiento = $("asiento").value.trim().toUpperCase(); // "1a" → "1A"
+  if (nombre === "") {
+    mensaje("⚠️ Escribe un nombre");
+    return null;
+  }
+  return { nombre, asiento };                    // = { nombre: nombre, asiento: asiento }
+}
+
+// Muestra un texto en el div #msg
+function mensaje(texto) {
+  $("msg").textContent = texto;
+}
+
+// Recorre la lista y crea un div por nodo
+function dibujar() {
+  let html = "";
+  let actual = lista.head;                       // el patrón de siempre: recorrer
+  while (actual !== null) {
+    const clase = actual === lista.head ? "nodo cabeza" : "nodo";  // ternario
+    html += `<div class="${clase}">${actual.data.nombre}
+               <small>${actual.data.asiento}</small></div>
+             <span class="flecha">→</span>`;
+    actual = actual.next;
+  }
+  $("tren").innerHTML = html + "<span>null</span>";  // el último apunta a null
+}
+
+// --- Botones: cada uno llama a un método y vuelve a dibujar ---
+$("btnFinal").onclick = () => {
+  const p = leerPasajero();
+  if (!p) return;                                // si no hay nombre, no sigo
+  lista.insertarFinal(p);
+  mensaje(`✅ ${p.nombre} al final`);
+  dibujar();
+};
+
+$("btnInicio").onclick = () => {
+  const p = leerPasajero();
+  if (!p) return;
+  lista.insertarInicio(p);
+  mensaje(`✅ ${p.nombre} al inicio`);
+  dibujar();
+};
+
+$("btnBuscar").onclick = () => {
+  const r = lista.buscar($("nombre").value.trim());
+  mensaje(r ? `🔎 ${r.nombre} está en el asiento ${r.asiento}`  // si lo encontró
+            : "❌ No encontrado");                             // si devolvió null
+};
+
+$("btnEliminar").onclick = () => {
+  const ok = lista.eliminar($("nombre").value.trim());
+  mensaje(ok ? "🗑️ Eliminado" : "❌ No encontrado");
+  dibujar();
+};
+
+// Datos de ejemplo para que no empiece vacía
+lista.insertarFinal({ nombre: "Ana", asiento: "1A" });
+lista.insertarFinal({ nombre: "Luis", asiento: "2B" });
+dibujar();
+</script>
+</body>
+</html>
